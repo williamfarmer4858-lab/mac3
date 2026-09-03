@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>McDelivery UAE (Demo)</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <img class="logo-badge" src="assets/menu/McDonalds_Logo.png" alt="McDonald's" />
+      <span class="logo-text">McDelivery <small>UAE (Demo)</small></span>
+    </div>
+    <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+      🛒 Cart
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </div>
+</header>
+
+<section class="hero" id="hero">
+  <div class="hero-inner">
+    <h1>Fast Delivery Across UAE</h1>
+    <p>Order your favorite McDonald's meals and get them delivered hot &amp; fresh, right to your door.</p>
+    <button class="cta-btn" id="orderNowBtn">Order Now</button>
+  </div>
+</section>
+
+<main>
+  <section class="menu-section" id="menu">
+    <div class="controls">
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Search for burgers, chicken, drinks..." />
+      </div>
+      <div class="categories" id="categories">
+        <button class="chip active" data-category="All">All</button>
+        <button class="chip" data-category="Burgers">Burgers</button>
+        <button class="chip" data-category="Chicken & Sandwiches">Chicken &amp; Sandwiches</button>
+        <button class="chip" data-category="Extra Value Meals">Extra Value Meals</button>
+        <button class="chip" data-category="Breakfast">Breakfast</button>
+        <button class="chip" data-category="Snacks & Sides">Snacks &amp; Sides</button>
+        <button class="chip" data-category="Desserts">Desserts</button>
+        <button class="chip" data-category="Beverages">Beverages</button>
+        <button class="chip" data-category="McCafé">McCafé</button>
+        <button class="chip" data-category="Happy Meal">Happy Meal</button>
+      </div>
+    </div>
+
+    <div class="menu-grid" id="menuGrid">
+      <!-- product cards injected by JS -->
+    </div>
+    <p class="no-results" id="noResults" hidden>No items found. Try a different search or category.</p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>McDelivery UAE (Demo) — unofficial fan-made demo project. Not affiliated with McDonald's.</p>
+</footer>
+
+<!-- Cart Drawer -->
+<div class="overlay" id="overlay"></div>
+<aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart">
+  <div class="cart-header">
+    <h2>Your Cart</h2>
+    <button class="close-btn" id="closeCartBtn" aria-label="Close cart">✕</button>
+  </div>
+
+  <div class="cart-items" id="cartItems">
+    <!-- cart items injected by JS -->
+  </div>
+
+  <p class="cart-empty" id="cartEmptyMsg">Your cart is empty. Add some tasty items!</p>
+
+  <div class="cart-summary" id="cartSummary" hidden>
+    <div class="summary-row">
+      <span>Subtotal</span>
+      <span id="subtotalVal">0 AED</span>
+    </div>
+    <div class="summary-row">
+      <span>Delivery Fee</span>
+      <span id="deliveryVal">7 AED</span>
+    </div>
+    <div class="summary-row total-row">
+      <span>Total</span>
+      <span id="totalVal">0 AED</span>
+    </div>
+    <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+  </div>
+</aside>
+
+<!-- Checkout Modal -->
+<div class="overlay" id="checkoutOverlay"></div>
+<div class="modal" id="checkoutModal" aria-label="Checkout">
+  <div class="modal-header">
+    <h2>Checkout</h2>
+    <button class="close-btn" id="closeCheckoutBtn" aria-label="Close checkout">✕</button>
+  </div>
+
+  <form id="checkoutForm" novalidate>
+    <label>
+      Name *
+      <input type="text" id="custName" required />
+    </label>
+    <label>
+      Phone *
+      <input type="tel" id="custPhone" required placeholder="+971 5X XXX XXXX" />
+    </label>
+    <label>
+      Address *
+      <input type="text" id="custAddress" required />
+    </label>
+    <label>
+      Area / City *
+      <input type="text" id="custArea" required placeholder="Dubai, Abu Dhabi, Sharjah..." />
+    </label>
+    <fieldset class="payment-fieldset">
+      <legend>Payment Method *</legend>
+      <label class="radio-label">
+        <input type="radio" name="payment" value="Cash" checked /> Cash on Delivery
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="payment" value="Card" /> Card on Delivery
+      </label>
+    </fieldset>
+
+    <div class="order-summary" id="checkoutSummary">
+      <!-- injected by JS -->
+    </div>
+
+    <p class="form-error" id="formError" hidden></p>
+    <p class="form-success" id="formSuccess" hidden>✅ Order placed successfully! Thank you for ordering with McDelivery UAE (Demo).</p>
+
+    <button type="submit" class="place-order-btn" id="placeOrderBtn">Place Order</button>
+  </form>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
