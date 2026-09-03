@@ -571,10 +571,8 @@ body {
 }
 
 #checkoutForm {
-  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
 #checkoutForm label {
@@ -586,23 +584,73 @@ body {
 }
 
 #checkoutForm input[type="text"],
-#checkoutForm input[type="tel"] {
+#checkoutForm input[type="tel"],
+#checkoutForm input[type="password"] {
   padding: 10px 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 0.95rem;
 }
 
-.payment-fieldset {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 10px 12px;
+/* Step indicator */
+.checkout-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 16px 0;
 }
 
-.payment-fieldset legend {
+.checkout-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+}
+
+.checkout-step.active {
+  opacity: 1;
+}
+
+.checkout-step .step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--mc-red);
+  color: var(--mc-white);
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkout-step .step-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.checkout-step-line {
+  width: 32px;
+  height: 2px;
+  background: #ddd;
+}
+
+/* Checkout panels (fieldsets used as steps) */
+.checkout-panel {
+  border: none;
+  margin: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payment-legend {
   font-size: 0.85rem;
   font-weight: 700;
-  padding: 0 4px;
+  padding: 0;
 }
 
 .radio-label {
@@ -611,6 +659,30 @@ body {
   gap: 6px !important;
   font-weight: normal !important;
   margin-bottom: 4px;
+}
+
+.card-fields {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-fields-row {
+  display: flex;
+  gap: 10px;
+}
+
+.card-fields-row label {
+  flex: 1;
+}
+
+.card-demo-note {
+  font-size: 0.75rem;
+  color: var(--mc-gray-dark);
+  margin: 0;
 }
 
 .order-summary {
@@ -637,6 +709,30 @@ body {
   text-align: center;
 }
 
+.checkout-panel-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.checkout-panel-actions .place-order-btn {
+  flex: 1;
+}
+
+.back-btn {
+  background: var(--mc-white);
+  color: var(--mc-red);
+  border: 2px solid var(--mc-red);
+  border-radius: 999px;
+  padding: 12px;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background: var(--mc-gray);
+}
+
 .place-order-btn {
   background: var(--mc-red);
   color: var(--mc-white);
@@ -646,6 +742,7 @@ body {
   font-weight: 800;
   font-size: 1rem;
   cursor: pointer;
+  width: 100%;
 }
 
 .place-order-btn:hover {

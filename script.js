@@ -1133,6 +1133,7 @@ function closeCart() {
 function openCheckout() {
   if (cartTotalCount() === 0) return;
   renderCheckoutSummary();
+  goToCheckoutStep(1);
   document.getElementById("checkoutModal").classList.add("open");
   document.getElementById("checkoutOverlay").classList.add("visible");
   closeCart();
@@ -1141,6 +1142,14 @@ function openCheckout() {
 function closeCheckout() {
   document.getElementById("checkoutModal").classList.remove("open");
   document.getElementById("checkoutOverlay").classList.remove("visible");
+}
+
+function goToCheckoutStep(step) {
+  document.getElementById("checkoutPanel1").hidden = step !== 1;
+  document.getElementById("checkoutPanel2").hidden = step !== 2;
+  document.querySelectorAll(".checkout-step").forEach((el) => {
+    el.classList.toggle("active", Number(el.dataset.step) === step);
+  });
 }
 
 function renderCheckoutSummary() {
@@ -1218,18 +1227,53 @@ function initCheckoutControls() {
   document
     .getElementById("checkoutForm")
     .addEventListener("submit", handleCheckoutSubmit);
+  document
+    .getElementById("toPaymentBtn")
+    .addEventListener("click", handleContinueToPayment);
+  document
+    .getElementById("toDeliveryBtn")
+    .addEventListener("click", () => goToCheckoutStep(1));
+
+  document.querySelectorAll('input[name="payment"]').forEach((radio) => {
+    radio.addEventListener("change", updateCardFieldsVisibility);
+  });
+  updateCardFieldsVisibility();
+
+  initCardFieldFormatting();
 }
 
-function handleCheckoutSubmit(e) {
-  e.preventDefault();
+function updateCardFieldsVisibility() {
+  const selected = document.querySelector('input[name="payment"]:checked');
+  const cardFields = document.getElementById("cardFields");
+  cardFields.hidden = !selected || selected.value !== "Card";
+}
+
+function initCardFieldFormatting() {
+  const numberInput = document.getElementById("cardNumber");
+  numberInput.addEventListener("input", () => {
+    const digits = numberInput.value.replace(/\D/g, "").slice(0, 16);
+    numberInput.value = digits.replace(/(.{4})/g, "$1 ").trim();
+  });
+
+  const expiryInput = document.getElementById("cardExpiry");
+  expiryInput.addEventListener("input", () => {
+    const digits = expiryInput.value.replace(/\D/g, "").slice(0, 4);
+    expiryInput.value =
+      digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+  });
+
+  const cvvInput = document.getElementById("cardCvv");
+  cvvInput.addEventListener("input", () => {
+    cvvInput.value = cvvInput.value.replace(/\D/g, "").slice(0, 4);
+  });
+}
+
+function handleContinueToPayment() {
   const name = document.getElementById("custName").value.trim();
   const phone = document.getElementById("custPhone").value.trim();
   const address = document.getElementById("custAddress").value.trim();
   const area = document.getElementById("custArea").value.trim();
-  const errorEl = document.getElementById("formError");
-  const successEl = document.getElementById("formSuccess");
-
-  successEl.hidden = true;
+  const errorEl = document.getElementById("step1Error");
 
   if (!name || !phone || !address || !area) {
     errorEl.textContent = "Please fill in all required fields.";
@@ -1237,24 +1281,72 @@ function handleCheckoutSubmit(e) {
     return;
   }
 
+  errorEl.hidden = true;
+  goToCheckoutStep(2);
+}
+
+function handleCheckoutSubmit(e) {
+  e.preventDefault();
+  const errorEl = document.getElementById("formError");
+  const successEl = document.getElementById("formSuccess");
+
+  successEl.hidden = true;
+
   if (cartTotalCount() === 0) {
     errorEl.textContent = "Your cart is empty.";
     errorEl.hidden = false;
     return;
   }
 
+  const paymentMethod = document.querySelector(
+    'input[name="payment"]:checked'
+  ).value;
+
+  if (paymentMethod === "Card") {
+    const cardName = document.getElementById("cardName").value.trim();
+    const cardNumber = document
+      .getElementById("cardNumber")
+      .value.replace(/\s/g, "");
+    const cardExpiry = document.getElementById("cardExpiry").value.trim();
+    const cardCvv = document.getElementById("cardCvv").value.trim();
+
+    if (!cardName || !cardNumber || !cardExpiry || !cardCvv) {
+      errorEl.textContent = "Please fill in all payment fields.";
+      errorEl.hidden = false;
+      return;
+    }
+    if (cardNumber.length < 15 || cardNumber.length > 16) {
+      errorEl.textContent = "Please enter a valid card number.";
+      errorEl.hidden = false;
+      return;
+    }
+    if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) {
+      errorEl.textContent = "Please enter a valid expiry date (MM/YY).";
+      errorEl.hidden = false;
+      return;
+    }
+    if (cardCvv.length < 3) {
+      errorEl.textContent = "Please enter a valid CVV.";
+      errorEl.hidden = false;
+      return;
+    }
+  }
+
   errorEl.hidden = true;
   successEl.hidden = false;
 
-  // Clear cart + localStorage
+  // Demo only: this data is never transmitted anywhere — the cart is simply
+  // cleared from local storage to simulate a placed order.
   cart = {};
   saveCart();
   renderAll();
 
   document.getElementById("checkoutForm").reset();
+  updateCardFieldsVisibility();
 
   setTimeout(() => {
     closeCheckout();
+    goToCheckoutStep(1);
     successEl.hidden = true;
   }, 2200);
 }

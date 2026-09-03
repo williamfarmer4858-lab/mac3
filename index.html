@@ -100,41 +100,87 @@
     <button class="close-btn" id="closeCheckoutBtn" aria-label="Close checkout">✕</button>
   </div>
 
+  <div class="checkout-steps" id="checkoutSteps">
+    <div class="checkout-step active" data-step="1">
+      <span class="step-num">1</span>
+      <span class="step-label">Delivery</span>
+    </div>
+    <div class="checkout-step-line"></div>
+    <div class="checkout-step" data-step="2">
+      <span class="step-num">2</span>
+      <span class="step-label">Payment</span>
+    </div>
+  </div>
+
   <form id="checkoutForm" novalidate>
-    <label>
-      Name *
-      <input type="text" id="custName" required />
-    </label>
-    <label>
-      Phone *
-      <input type="tel" id="custPhone" required placeholder="+971 5X XXX XXXX" />
-    </label>
-    <label>
-      Address *
-      <input type="text" id="custAddress" required />
-    </label>
-    <label>
-      Area / City *
-      <input type="text" id="custArea" required placeholder="Dubai, Abu Dhabi, Sharjah..." />
-    </label>
-    <fieldset class="payment-fieldset">
-      <legend>Payment Method *</legend>
+    <!-- Step 1: Delivery details -->
+    <fieldset class="checkout-panel" id="checkoutPanel1" data-panel="1">
+      <label>
+        Name *
+        <input type="text" id="custName" required />
+      </label>
+      <label>
+        Phone *
+        <input type="tel" id="custPhone" required placeholder="+971 5X XXX XXXX" />
+      </label>
+      <label>
+        Address *
+        <input type="text" id="custAddress" required />
+      </label>
+      <label>
+        Area / City *
+        <input type="text" id="custArea" required placeholder="Dubai, Abu Dhabi, Sharjah..." />
+      </label>
+
+      <p class="form-error" id="step1Error" hidden></p>
+
+      <button type="button" class="place-order-btn" id="toPaymentBtn">Continue to Payment</button>
+    </fieldset>
+
+    <!-- Step 2: Payment details -->
+    <fieldset class="checkout-panel" id="checkoutPanel2" data-panel="2" hidden>
+      <legend class="payment-legend">Payment Method *</legend>
       <label class="radio-label">
         <input type="radio" name="payment" value="Cash" checked /> Cash on Delivery
       </label>
       <label class="radio-label">
-        <input type="radio" name="payment" value="Card" /> Card on Delivery
+        <input type="radio" name="payment" value="Card" /> Card (Demo)
       </label>
+
+      <div class="card-fields" id="cardFields" hidden>
+        <label>
+          Name on Card *
+          <input type="text" id="cardName" placeholder="As shown on card" autocomplete="off" />
+        </label>
+        <label>
+          Card Number *
+          <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" inputmode="numeric" maxlength="19" autocomplete="off" />
+        </label>
+        <div class="card-fields-row">
+          <label>
+            Expiry (MM/YY) *
+            <input type="text" id="cardExpiry" placeholder="MM/YY" inputmode="numeric" maxlength="5" autocomplete="off" />
+          </label>
+          <label>
+            CVV *
+            <input type="password" id="cardCvv" placeholder="123" inputmode="numeric" maxlength="4" autocomplete="off" />
+          </label>
+        </div>
+        <p class="card-demo-note">🔒 Demo only — no real card data is collected, stored, or sent anywhere.</p>
+      </div>
+
+      <div class="order-summary" id="checkoutSummary">
+        <!-- injected by JS -->
+      </div>
+
+      <p class="form-error" id="formError" hidden></p>
+      <p class="form-success" id="formSuccess" hidden>✅ Order placed successfully! Thank you for ordering with McDelivery UAE (Demo).</p>
+
+      <div class="checkout-panel-actions">
+        <button type="button" class="back-btn" id="toDeliveryBtn">← Back</button>
+        <button type="submit" class="place-order-btn" id="placeOrderBtn">Place Order</button>
+      </div>
     </fieldset>
-
-    <div class="order-summary" id="checkoutSummary">
-      <!-- injected by JS -->
-    </div>
-
-    <p class="form-error" id="formError" hidden></p>
-    <p class="form-success" id="formSuccess" hidden>✅ Order placed successfully! Thank you for ordering with McDelivery UAE (Demo).</p>
-
-    <button type="submit" class="place-order-btn" id="placeOrderBtn">Place Order</button>
   </form>
 </div>
 
