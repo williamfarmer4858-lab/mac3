@@ -112,6 +112,17 @@ body {
   margin: 0 auto;
 }
 
+.sale-banner {
+  display: inline-block;
+  background: var(--mc-yellow);
+  color: var(--mc-red);
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
 .hero h1 {
   font-size: 2rem;
   margin: 0 0 12px;
@@ -259,6 +270,32 @@ body {
   font-weight: 800;
   color: var(--mc-red);
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.price-old {
+  text-decoration: line-through;
+  color: var(--mc-gray-dark);
+  font-weight: 500;
+  font-size: 0.85em;
+}
+
+.price-new {
+  color: var(--mc-red);
+  font-weight: 800;
+}
+
+.price-badge {
+  background: var(--mc-red);
+  color: var(--mc-white);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1.4;
 }
 
 .product-actions {
@@ -441,6 +478,16 @@ body {
   font-size: 0.8rem;
   color: var(--mc-gray-dark);
   margin: 0;
+}
+
+.cart-item-price .price-old {
+  text-decoration: line-through;
+  font-size: 0.9em;
+}
+
+.cart-item-price .price-new {
+  color: var(--mc-red);
+  font-weight: 700;
 }
 
 .cart-item-controls {

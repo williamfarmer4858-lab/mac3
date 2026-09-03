@@ -6,6 +6,12 @@
 const CART_STORAGE_KEY = "mcdelivery_uae_cart";
 const UI_STORAGE_KEY = "mcdelivery_uae_ui";
 const DELIVERY_FEE = 7;
+const DISCOUNT_RATE = 0.5;
+
+/* ---------- Discount helpers ---------- */
+function getDiscountedPrice(item) {
+  return Math.round(item.price * (1 - DISCOUNT_RATE) * 100) / 100;
+}
 
 /* ---------- Menu data ---------- */
 const MENU_ITEMS = [
@@ -986,7 +992,7 @@ function cartTotalCount() {
 function cartSubtotal() {
   return Object.entries(cart).reduce((sum, [id, qty]) => {
     const item = MENU_ITEMS.find((m) => m.id === id);
-    return item ? sum + item.price * qty : sum;
+    return item ? sum + getDiscountedPrice(item) * qty : sum;
   }, 0);
 }
 
@@ -1031,7 +1037,11 @@ function renderMenu() {
       <div class="product-body">
         <h3 class="product-name">${item.name}</h3>
         <p class="product-desc">${item.description}</p>
-        <p class="product-price">${item.price} AED</p>
+        <p class="product-price">
+          <span class="price-old">${item.price} AED</span>
+          <span class="price-new">${getDiscountedPrice(item)} AED</span>
+          <span class="price-badge">-50%</span>
+        </p>
         <div class="product-actions">
           ${
             qty > 0
@@ -1077,7 +1087,10 @@ function renderCart() {
       <div class="cart-item-icon">${productImageMarkup(item)}</div>
       <div class="cart-item-info">
         <p class="cart-item-name">${item.name}</p>
-        <p class="cart-item-price">${item.price} AED × ${qty} = ${item.price * qty} AED</p>
+        <p class="cart-item-price">
+          <span class="price-old">${item.price} AED</span>
+          <span class="price-new">${getDiscountedPrice(item)} AED</span> × ${qty} = ${Math.round(getDiscountedPrice(item) * qty * 100) / 100} AED
+        </p>
       </div>
       <div class="cart-item-controls">
         <button class="qty-btn" data-action="remove" data-id="${id}" aria-label="Remove one ${item.name}">−</button>
@@ -1140,7 +1153,8 @@ function renderCheckoutSummary() {
     .map(([id, qty]) => {
       const item = MENU_ITEMS.find((m) => m.id === id);
       if (!item) return "";
-      return `<div class="summary-row"><span>${item.name} × ${qty}</span><span>${item.price * qty} AED</span></div>`;
+      const discounted = getDiscountedPrice(item);
+      return `<div class="summary-row"><span>${item.name} × ${qty}</span><span><span class="price-old">${item.price * qty} AED</span> <span class="price-new">${Math.round(discounted * qty * 100) / 100} AED</span></span></div>`;
     })
     .join("");
 
