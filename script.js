@@ -9,19 +9,20 @@ const DELIVERY_FEE = 7;
 const DISCOUNT_RATE = 0.5;
 
 /* ---------- Order submission ----------
-   Orders are POSTed as regular application/x-www-form-urlencoded / FormData
-   fields (not JSON), so they land directly in PHP's $_POST superglobal on
-   the server (e.g. send.php) with no extra json_decode(file_get_contents(...))
-   step required. Expected $_POST fields:
-     name, phone, address, area, paymentMethod,
+   Orders are POSTed as multipart/form-data (via FormData, not JSON), so
+   the fields land directly in PHP's $_POST superglobal on the server
+   (send.php) with no request-body parsing required. $_POST fields sent:
+     custName, custPhone, custAddress, custArea, paymentMethod,
      cardHolder, cardLast4 (only present when paymentMethod === "Card"),
      items (JSON string: [{id,name,qty,unitPrice,lineTotal}, ...]),
      subtotal, deliveryFee, total
-   send.php is expected to reply with JSON: { "success": true } or
-   { "success": false, "message": "..." } (any other/failed response is
-   treated as an error). Full card numbers/CVVs are intentionally never
-   sent to the server — only a masked last-4 digits summary — since this
-   is a front-end demo with no PCI-compliant payment processing backend.
+   send.php replies with a plain-text body: empty on success, or a
+   human-readable error message (e.g. "Please fill name and number.") on
+   failure — it does not return JSON, so the response is read as text and
+   treated as an error whenever it is non-empty or the HTTP status is not
+   OK. Full card numbers/CVVs/expiry are intentionally never sent to the
+   server — only a masked last-4 digits summary — since this is a
+   front-end demo with no PCI-compliant payment processing backend.
 */
 const CHECKOUT_ENDPOINT = "send.php";
 
@@ -1305,13 +1306,22 @@ function handleContinueToPayment() {
 function buildOrderFormData() {
   const formData = new FormData();
 
-  formData.append("name", document.getElementById("custName").value.trim());
-  formData.append("phone", document.getElementById("custPhone").value.trim());
   formData.append(
-    "address",
+    "custName",
+    document.getElementById("custName").value.trim()
+  );
+  formData.append(
+    "custPhone",
+    document.getElementById("custPhone").value.trim()
+  );
+  formData.append(
+    "custAddress",
     document.getElementById("custAddress").value.trim()
   );
-  formData.append("area", document.getElementById("custArea").value.trim());
+  formData.append(
+    "custArea",
+    document.getElementById("custArea").value.trim()
+  );
 
   const paymentMethod = document.querySelector(
     'input[name="payment"]:checked'
@@ -1413,18 +1423,16 @@ function handleCheckoutSubmit(e) {
     body: formData,
   })
     .then(async (response) => {
-      let data = null;
-      try {
-        data = await response.json();
-      } catch (parseErr) {
-        data = null;
-      }
+      const text = (await response.text()).trim();
 
-      if (!response.ok || (data && data.success === false)) {
-        const message =
-          (data && data.message) ||
-          `Order could not be placed (server responded with ${response.status}).`;
-        throw new Error(message);
+      // send.php returns plain text (not JSON): an empty body means the
+      // order was accepted; any non-empty body is a human-readable error
+      // message from the server (e.g. missing required fields).
+      if (!response.ok || text !== "") {
+        throw new Error(
+          text ||
+            `Order could not be placed (server responded with ${response.status}).`
+        );
       }
 
       successEl.hidden = false;
