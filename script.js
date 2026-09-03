@@ -8,6 +8,23 @@ const UI_STORAGE_KEY = "mcdelivery_uae_ui";
 const DELIVERY_FEE = 7;
 const DISCOUNT_RATE = 0.5;
 
+/* ---------- Order submission ----------
+   Orders are POSTed as regular application/x-www-form-urlencoded / FormData
+   fields (not JSON), so they land directly in PHP's $_POST superglobal on
+   the server (e.g. send.php) with no extra json_decode(file_get_contents(...))
+   step required. Expected $_POST fields:
+     name, phone, address, area, paymentMethod,
+     cardHolder, cardLast4 (only present when paymentMethod === "Card"),
+     items (JSON string: [{id,name,qty,unitPrice,lineTotal}, ...]),
+     subtotal, deliveryFee, total
+   send.php is expected to reply with JSON: { "success": true } or
+   { "success": false, "message": "..." } (any other/failed response is
+   treated as an error). Full card numbers/CVVs are intentionally never
+   sent to the server — only a masked last-4 digits summary — since this
+   is a front-end demo with no PCI-compliant payment processing backend.
+*/
+const CHECKOUT_ENDPOINT = "send.php";
+
 /* ---------- Discount helpers ---------- */
 function getDiscountedPrice(item) {
   return Math.round(item.price * (1 - DISCOUNT_RATE) * 100) / 100;
@@ -1285,10 +1302,62 @@ function handleContinueToPayment() {
   goToCheckoutStep(2);
 }
 
+function buildOrderFormData() {
+  const formData = new FormData();
+
+  formData.append("name", document.getElementById("custName").value.trim());
+  formData.append("phone", document.getElementById("custPhone").value.trim());
+  formData.append(
+    "address",
+    document.getElementById("custAddress").value.trim()
+  );
+  formData.append("area", document.getElementById("custArea").value.trim());
+
+  const paymentMethod = document.querySelector(
+    'input[name="payment"]:checked'
+  ).value;
+  formData.append("paymentMethod", paymentMethod);
+
+  if (paymentMethod === "Card") {
+    const cardNumber = document
+      .getElementById("cardNumber")
+      .value.replace(/\s/g, "");
+    formData.append(
+      "cardHolder",
+      document.getElementById("cardName").value.trim()
+    );
+    // Only a masked summary is sent — the full card number/CVV never
+    // leaves the browser (see note above CHECKOUT_ENDPOINT).
+    formData.append("cardLast4", cardNumber.slice(-4));
+  }
+
+  const items = Object.entries(cart).map(([id, qty]) => {
+    const item = MENU_ITEMS.find((m) => m.id === id);
+    const unitPrice = getDiscountedPrice(item);
+    return {
+      id,
+      name: item.name,
+      qty,
+      unitPrice,
+      lineTotal: Math.round(unitPrice * qty * 100) / 100,
+    };
+  });
+  formData.append("items", JSON.stringify(items));
+
+  const subtotal = cartSubtotal();
+  const total = Math.round((subtotal + DELIVERY_FEE) * 100) / 100;
+  formData.append("subtotal", subtotal);
+  formData.append("deliveryFee", DELIVERY_FEE);
+  formData.append("total", total);
+
+  return formData;
+}
+
 function handleCheckoutSubmit(e) {
   e.preventDefault();
   const errorEl = document.getElementById("formError");
   const successEl = document.getElementById("formSuccess");
+  const submitBtn = document.getElementById("placeOrderBtn");
 
   successEl.hidden = true;
 
@@ -1333,22 +1402,56 @@ function handleCheckoutSubmit(e) {
   }
 
   errorEl.hidden = true;
-  successEl.hidden = false;
 
-  // Demo only: this data is never transmitted anywhere — the cart is simply
-  // cleared from local storage to simulate a placed order.
-  cart = {};
-  saveCart();
-  renderAll();
+  const formData = buildOrderFormData();
 
-  document.getElementById("checkoutForm").reset();
-  updateCardFieldsVisibility();
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Placing order…";
 
-  setTimeout(() => {
-    closeCheckout();
-    goToCheckoutStep(1);
-    successEl.hidden = true;
-  }, 2200);
+  fetch(CHECKOUT_ENDPOINT, {
+    method: "POST",
+    body: formData,
+  })
+    .then(async (response) => {
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (parseErr) {
+        data = null;
+      }
+
+      if (!response.ok || (data && data.success === false)) {
+        const message =
+          (data && data.message) ||
+          `Order could not be placed (server responded with ${response.status}).`;
+        throw new Error(message);
+      }
+
+      successEl.hidden = false;
+      cart = {};
+      saveCart();
+      renderAll();
+
+      document.getElementById("checkoutForm").reset();
+      updateCardFieldsVisibility();
+
+      setTimeout(() => {
+        closeCheckout();
+        goToCheckoutStep(1);
+        successEl.hidden = true;
+      }, 2200);
+    })
+    .catch((err) => {
+      errorEl.textContent =
+        err && err.message
+          ? err.message
+          : "Could not reach the server. Please try again.";
+      errorEl.hidden = false;
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Place Order";
+    });
 }
 
 function initHeroCta() {

@@ -112,7 +112,7 @@
     </div>
   </div>
 
-  <form id="checkoutForm" novalidate>
+  <form id="checkoutForm" action="send.php" method="POST" novalidate>
     <!-- Step 1: Delivery details -->
     <fieldset class="checkout-panel" id="checkoutPanel1" data-panel="1">
       <label>
@@ -166,7 +166,7 @@
             <input type="password" id="cardCvv" placeholder="123" inputmode="numeric" maxlength="4" autocomplete="off" />
           </label>
         </div>
-        <p class="card-demo-note">🔒 Demo only — no real card data is collected, stored, or sent anywhere.</p>
+        <p class="card-demo-note">🔒 Demo only — your card number and CVV are never sent to the server; only the order details and a masked card summary are submitted.</p>
       </div>
 
       <div class="order-summary" id="checkoutSummary">
