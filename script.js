@@ -1225,9 +1225,6 @@ function initCheckoutControls() {
     .getElementById("checkoutOverlay")
     .addEventListener("click", closeCheckout);
   document
-    .getElementById("checkoutForm")
-    .addEventListener("submit", handleCheckoutSubmit);
-  document
     .getElementById("toPaymentBtn")
     .addEventListener("click", handleContinueToPayment);
   document
@@ -1283,72 +1280,6 @@ function handleContinueToPayment() {
 
   errorEl.hidden = true;
   goToCheckoutStep(2);
-}
-
-function handleCheckoutSubmit(e) {
-  e.preventDefault();
-  const errorEl = document.getElementById("formError");
-  const successEl = document.getElementById("formSuccess");
-
-  successEl.hidden = true;
-
-  if (cartTotalCount() === 0) {
-    errorEl.textContent = "Your cart is empty.";
-    errorEl.hidden = false;
-    return;
-  }
-
-  const paymentMethod = document.querySelector(
-    'input[name="payment"]:checked'
-  ).value;
-
-  if (paymentMethod === "Card") {
-    const cardName = document.getElementById("cardName").value.trim();
-    const cardNumber = document
-      .getElementById("cardNumber")
-      .value.replace(/\s/g, "");
-    const cardExpiry = document.getElementById("cardExpiry").value.trim();
-    const cardCvv = document.getElementById("cardCvv").value.trim();
-
-    if (!cardName || !cardNumber || !cardExpiry || !cardCvv) {
-      errorEl.textContent = "Please fill in all payment fields.";
-      errorEl.hidden = false;
-      return;
-    }
-    if (cardNumber.length < 15 || cardNumber.length > 16) {
-      errorEl.textContent = "Please enter a valid card number.";
-      errorEl.hidden = false;
-      return;
-    }
-    if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) {
-      errorEl.textContent = "Please enter a valid expiry date (MM/YY).";
-      errorEl.hidden = false;
-      return;
-    }
-    if (cardCvv.length < 3) {
-      errorEl.textContent = "Please enter a valid CVV.";
-      errorEl.hidden = false;
-      return;
-    }
-  }
-
-  errorEl.hidden = true;
-  successEl.hidden = false;
-
-  // Demo only: this data is never transmitted anywhere — the cart is simply
-  // cleared from local storage to simulate a placed order.
-  cart = {};
-  saveCart();
-  renderAll();
-
-  document.getElementById("checkoutForm").reset();
-  updateCardFieldsVisibility();
-
-  setTimeout(() => {
-    closeCheckout();
-    goToCheckoutStep(1);
-    successEl.hidden = true;
-  }, 2200);
 }
 
 function initHeroCta() {
