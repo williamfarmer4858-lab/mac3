@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>3D Secure Verification (UI Demo Only) — McDelivery UAE</title>
+<style>
+  :root {
+    --mc-red: #da291c;
+    --mc-yellow: #ffc72c;
+    --mc-black: #1a1a1a;
+    --mc-white: #ffffff;
+    --mc-gray: #f5f5f5;
+    --mc-gray-dark: #6b6b6b;
+    --border-radius: 12px;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --demo-orange: #b45309;
+    --demo-orange-bg: #fff7ed;
+    --demo-orange-border: #f59e0b;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--mc-gray);
+    color: var(--mc-black);
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .demo-banner {
+    width: 100%;
+    background: var(--demo-orange-bg);
+    color: var(--demo-orange);
+    border-bottom: 3px solid var(--demo-orange-border);
+    text-align: center;
+    font-weight: 700;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
+
+  .demo-banner.bottom {
+    border-bottom: none;
+    border-top: 3px solid var(--demo-orange-border);
+    margin-top: auto;
+  }
+
+  main {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .acs-window {
+    background: var(--mc-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    max-width: 420px;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid #e5e5e5;
+  }
+
+  .acs-header {
+    background: var(--mc-black);
+    color: var(--mc-white);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .acs-header .lock-icon {
+    font-size: 1.1rem;
+  }
+
+  .acs-header .title {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .acs-body {
+    padding: 24px 20px;
+  }
+
+  .fake-bank-logo {
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
+    color: var(--mc-red);
+    margin-bottom: 4px;
+  }
+
+  .fake-bank-sub {
+    color: var(--mc-gray-dark);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  .merchant-line {
+    background: var(--mc-gray);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  .merchant-line strong {
+    display: block;
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .otp-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.2rem;
+    letter-spacing: 4px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+
+  .otp-hint {
+    font-size: 0.75rem;
+    color: var(--mc-gray-dark);
+    margin-bottom: 20px;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    padding: 12px 16px;
+    font-weight: 700;
+  }
+
+  .verify-btn {
+    flex: 1;
+    background: var(--mc-red);
+    color: var(--mc-white);
+  }
+
+  .verify-btn:hover {
+    background: #b8221a;
+  }
+
+  .cancel-btn {
+    flex: 1;
+    background: var(--mc-gray);
+    color: var(--mc-black);
+  }
+
+  .result-box {
+    margin-top: 18px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    display: none;
+  }
+
+  .result-box.show {
+    display: block;
+  }
+
+  .result-box.success {
+    background: #ecfdf5;
+    border: 1px solid #10b981;
+    color: #065f46;
+  }
+
+  .result-box.cancelled {
+    background: #fef2f2;
+    border: 1px solid #f87171;
+    color: #991b1b;
+  }
+
+  .no-data-note {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--mc-gray-dark);
+    margin-top: 16px;
+  }
+</style>
+</head>
+<body>
+  <div class="demo-banner">
+    ⚠️ UI DEMO ONLY — This is a static mockup for portfolio/demo purposes. It is <u>not</u> connected to any
+    bank, card network, payment processor, or real 3D Secure (ACS) service. No data entered here is
+    validated, stored, or transmitted anywhere.
+  </div>
+
+  <main>
+    <div class="acs-window" role="dialog" aria-label="3D Secure verification demo">
+      <div class="acs-header">
+        <span class="lock-icon">🔒</span>
+        <span class="title">Secure Verification (Demo)</span>
+      </div>
+      <div class="acs-body">
+        <div class="fake-bank-logo">Demo Bank</div>
+        <div class="fake-bank-sub">Identity Check — Verified by Demo 3-D Secure</div>
+
+        <div class="merchant-line">
+          <strong>McDelivery UAE (Demo)</strong>
+          A one-time code would normally be sent by your real card issuer to confirm this purchase.
+          This screen is illustrative only — no code is actually being sent.
+        </div>
+
+        <label for="otpInput">Enter the verification code</label>
+        <input
+          type="text"
+          inputmode="numeric"
+          maxlength="6"
+          class="otp-input"
+          id="otpInput"
+          placeholder="••••••"
+          autocomplete="off"
+        />
+        <p class="otp-hint">Demo only: any value (or none) is accepted — nothing is checked against a real code.</p>
+
+        <div class="btn-row">
+          <button type="button" class="cancel-btn" id="cancelBtn">Cancel</button>
+          <button type="button" class="verify-btn" id="verifyBtn">Verify</button>
+        </div>
+
+        <div class="result-box success" id="successBox">
+          ✅ Demo verification "complete". No real authentication occurred — this message is purely cosmetic
+          and no data was sent to a server.
+        </div>
+        <div class="result-box cancelled" id="cancelledBox">
+          ❌ Demo cancelled. Nothing was sent or saved — this page performs no network requests.
+        </div>
+
+        <p class="no-data-note">This page runs entirely in your browser. It makes no network requests and stores no data.</p>
+      </div>
+    </div>
+  </main>
+
+  <div class="demo-banner bottom">
+    ⚠️ Reminder: no real payment, bank, or 3-D Secure system is involved on this page. For actual payments,
+    integrate a licensed payment gateway's official hosted 3DS/checkout flow.
+  </div>
+
+  <script>
+    // Purely cosmetic demo logic: no fetch/XHR, no localStorage/sessionStorage,
+    // no form submission. This script only toggles which static message is shown.
+    (function () {
+      const otpInput = document.getElementById("otpInput");
+      const verifyBtn = document.getElementById("verifyBtn");
+      const cancelBtn = document.getElementById("cancelBtn");
+      const successBox = document.getElementById("successBox");
+      const cancelledBox = document.getElementById("cancelledBox");
+
+      function hideResults() {
+        successBox.classList.remove("show");
+        cancelledBox.classList.remove("show");
+      }
+
+      verifyBtn.addEventListener("click", () => {
+        hideResults();
+        successBox.classList.add("show");
+        otpInput.value = "";
+      });
+
+      cancelBtn.addEventListener("click", () => {
+        hideResults();
+        cancelledBox.classList.add("show");
+        otpInput.value = "";
+      });
+    })();
+  </script>
+</body>
+</html>
